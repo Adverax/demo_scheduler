@@ -30,12 +30,12 @@ func TestEngine_Fetch(t *testing.T) {
 	}
 
 	tests := map[string]Test{
-		/*"Single": {
+		"Single": {
 			tasks: []Task{
 				NewTask("1", PriorityLow, nil),
 			},
 			res: "1",
-		},*/
+		},
 		"Multiple": {
 			tasks: []Task{
 				NewTask("1", PriorityLow, nil),
