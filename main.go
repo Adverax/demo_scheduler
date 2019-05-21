@@ -13,8 +13,9 @@ func main() {
 	// m.Append(scheduler.NewTask(...))
 
 	// Запустить его на выполнение
-	m.Run(context.Background())
+	go m.Run(context.Background())
 
 	// Потокобезопасен.
 	// Можно запускать в отельной горутине и добавлять задачи или обработчики событий.
+	m.Shutdown()
 }
