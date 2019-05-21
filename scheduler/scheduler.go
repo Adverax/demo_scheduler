@@ -70,8 +70,11 @@ func (engine *engine) Append(task Task) {
 	defer engine.Unlock()
 
 	engine.tasks = append(engine.tasks, task)
-	sort.Sort(engine.tasks)
-	engine.work <- struct{}{}
+	err := task.OnCreate()
+	if err == nil {
+		sort.Sort(engine.tasks)
+		engine.work <- struct{}{}
+	}
 }
 
 func (engine *engine) Remove(task Task) {
