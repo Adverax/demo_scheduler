@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -65,4 +66,10 @@ func TestEngine_Fetch(t *testing.T) {
 			assert.Equal(t, test.res, res)
 		})
 	}
+}
+
+func TestEngine_Shutdown(t *testing.T) {
+	m := New()
+	go m.Run(context.Background())
+	m.Shutdown()
 }

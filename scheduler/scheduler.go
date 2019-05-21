@@ -51,6 +51,9 @@ type Manager interface {
 	Remove(task Task)
 	// Запуск менеджера на выполнение
 	Run(ctx context.Context)
+	// Останов мереджера.
+	// Останов также может быть выполнен через контекст, переданный в Run
+	Shutdown()
 }
 
 // Engine - конкретная реализация менеджера задач
@@ -58,6 +61,8 @@ type engine struct {
 	sync.Mutex
 	tasks tasks
 	work  chan struct{}
+	stop  chan struct{}
+	done  chan struct{}
 }
 
 func (engine *engine) Append(task Task) {
@@ -88,6 +93,10 @@ func (engine *engine) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			close(engine.done)
+			return
+		case <-engine.stop:
+			close(engine.done)
 			return
 		case <-engine.work:
 			task := engine.fetch()
@@ -96,6 +105,11 @@ func (engine *engine) Run(ctx context.Context) {
 			}
 		}
 	}
+}
+
+func (engine *engine) Shutdown() {
+	close(engine.stop)
+	<-engine.done
 }
 
 // Извлечение задачи для выполнения
@@ -118,5 +132,7 @@ func New() Manager {
 	return &engine{
 		tasks: make(tasks, 0, 16),
 		work:  make(chan struct{}, 1024),
+		done:  make(chan struct{}),
+		stop:  make(chan struct{}),
 	}
 }
