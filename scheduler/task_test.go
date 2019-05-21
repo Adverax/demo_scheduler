@@ -33,17 +33,14 @@ func TestTask_Execute(t *testing.T) {
 				success: 1,
 				primary: 1,
 			},
-			OnExecute: func(ctx context.Context, task Task) error {
+			OnExecute: func(ctx context.Context, task Task) {
 				match.execute++
-				return nil
 			},
-			OnSuccess: func(ctx context.Context, task Task) error {
+			OnSuccess: func(ctx context.Context, task Task) {
 				match.success++
-				return nil
 			},
-			OnError: func(ctx context.Context, task Task) error {
+			OnError: func(ctx context.Context, task Task) {
 				match.error++
-				return nil
 			},
 		},
 		"Failure": {
@@ -53,17 +50,14 @@ func TestTask_Execute(t *testing.T) {
 				primary: 1,
 				err:     errTest,
 			},
-			OnExecute: func(ctx context.Context, task Task) error {
+			OnExecute: func(ctx context.Context, task Task) {
 				match.execute++
-				return nil
 			},
-			OnSuccess: func(ctx context.Context, task Task) error {
+			OnSuccess: func(ctx context.Context, task Task) {
 				match.success++
-				return nil
 			},
-			OnError: func(ctx context.Context, task Task) error {
+			OnError: func(ctx context.Context, task Task) {
 				match.error++
-				return nil
 			},
 		},
 	}

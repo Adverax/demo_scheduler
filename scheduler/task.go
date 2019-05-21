@@ -12,12 +12,14 @@ type Task interface {
 	Execute(ctx context.Context)
 	Priority() Priority
 	Name() string
+	Err() error
 }
 
 type task struct {
 	name     string
 	priority Priority
 	action   func() error
+	err      error
 
 	onCreate  Event
 	onExecute Event
@@ -31,6 +33,10 @@ func (task *task) Name() string {
 
 func (task *task) Priority() Priority {
 	return task.priority
+}
+
+func (task *task) Err() error {
+	return task.err
 }
 
 func (task *task) OnCreate() Event {
@@ -50,21 +56,13 @@ func (task *task) OnError() Event {
 }
 
 func (task *task) Execute(ctx context.Context) {
-	err := task.execute(ctx)
-	if err == nil {
-		err = task.onSuccess.Trigger(ctx, task)
+	task.onExecute.Trigger(ctx, task)
+	task.err = task.action()
+	if task.err == nil {
+		task.onSuccess.Trigger(ctx, task)
+	} else {
+		task.onError.Trigger(ctx, task)
 	}
-	if err != nil {
-		_ = task.onError.Trigger(ctx, task)
-	}
-}
-
-func (task *task) execute(ctx context.Context) error {
-	err := task.onExecute.Trigger(ctx, task)
-	if err != nil {
-		return err
-	}
-	return task.action()
 }
 
 func NewTask(

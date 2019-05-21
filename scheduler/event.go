@@ -6,7 +6,7 @@ import (
 )
 
 // Подписчик на событие
-type Subscriber func(ctx context.Context, task Task) error
+type Subscriber func(ctx context.Context, task Task)
 
 type subscribers []Subscriber
 
@@ -15,7 +15,7 @@ type Event interface {
 	// Регистрация нового подписчика
 	Append(subscriber Subscriber)
 	// Оповещение всех подписчиков о событии
-	Trigger(ctx context.Context, task Task) error
+	Trigger(ctx context.Context, task Task)
 }
 
 // Реализация абстрактного события
@@ -35,18 +35,13 @@ func (e *event) Append(action Subscriber) {
 	e.subscribers = append(e.subscribers, action)
 }
 
-func (e *event) Trigger(ctx context.Context, task Task) error {
+func (e *event) Trigger(ctx context.Context, task Task) {
 	e.Lock()
 	defer e.Unlock()
 
 	for _, action := range e.subscribers {
-		err := action(ctx, task)
-		if err != nil {
-			return err
-		}
+		action(ctx, task)
 	}
-
-	return nil
 }
 
 func newEvent() Event {

@@ -46,9 +46,9 @@ func (tasks tasks) indexOf(task Task) int {
 // Менеджер - интерфейс менеджера задач
 type Manager interface {
 	// Добавление новой задачи в список задач
-	Append(task Task)
+	Append(ctx context.Context, task Task)
 	// Удаление задачи из списка задач
-	Remove(task Task)
+	Remove(ctx context.Context, task Task)
 	// Запуск менеджера на выполнение
 	Run(ctx context.Context)
 	// Останов мереджера.
@@ -65,19 +65,17 @@ type engine struct {
 	done  chan struct{}
 }
 
-func (engine *engine) Append(task Task) {
+func (engine *engine) Append(ctx context.Context, task Task) {
 	engine.Lock()
 	defer engine.Unlock()
 
 	engine.tasks = append(engine.tasks, task)
-	err := task.OnCreate()
-	if err == nil {
-		sort.Sort(engine.tasks)
-		engine.work <- struct{}{}
-	}
+	task.OnCreate().Trigger(ctx, task)
+	sort.Sort(engine.tasks)
+	engine.work <- struct{}{}
 }
 
-func (engine *engine) Remove(task Task) {
+func (engine *engine) Remove(ctx context.Context, task Task) {
 	engine.Lock()
 	defer engine.Unlock()
 

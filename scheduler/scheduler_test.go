@@ -14,11 +14,12 @@ func TestEngine_AppendRemove(t *testing.T) {
 	}
 
 	task := NewTask("1", PriorityLow, nil)
+	ctx := context.Background()
 
-	m.Append(task)
+	m.Append(ctx, task)
 	require.Equal(t, 1, len(m.tasks))
 
-	m.Remove(task)
+	m.Remove(ctx, task)
 	require.Equal(t, 0, len(m.tasks))
 }
 
@@ -29,12 +30,12 @@ func TestEngine_Fetch(t *testing.T) {
 	}
 
 	tests := map[string]Test{
-		"Single": {
+		/*"Single": {
 			tasks: []Task{
 				NewTask("1", PriorityLow, nil),
 			},
 			res: "1",
-		},
+		},*/
 		"Multiple": {
 			tasks: []Task{
 				NewTask("1", PriorityLow, nil),
@@ -45,6 +46,7 @@ func TestEngine_Fetch(t *testing.T) {
 		},
 	}
 
+	ctx := context.Background()
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			m := &engine{
@@ -53,7 +55,7 @@ func TestEngine_Fetch(t *testing.T) {
 			}
 
 			for _, tt := range test.tasks {
-				m.Append(tt)
+				m.Append(ctx, tt)
 			}
 
 			var res string
